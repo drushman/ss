@@ -29,7 +29,7 @@ function check_insert_term(&$node){
 					$parents = taxonomy_get_parents_all($term);// get all parent of term
 					if(!empty($parents)){
 						foreach ($parents as $parent){//foreach all parent if exist in list term(*) not add
-							if(!in_array($parent->tid, $os)){
+							if(!in_array($parent->tid, $list_parent)){
 								$list_parent[] = $parent->tid;
 							}
 						}
