@@ -10,21 +10,19 @@
 function ss_nodeapi(&$node, $op, $teaser, $page) {
 	switch ($op) {
 		case 'presave':
-			check_insert_term(&$node);
+			ss_node_check_parent_terms($node);
 			break;
 	}
 }
 
 /**
- * If node have term when user input. This function will add all term parent to node 
- * 
- * 
+ * If node have term when user input. This function will add all term parent to node
+ *  
+ * @see ss_nodeapi().
  */
-function check_insert_term(&$node) {
-	// no, do nothing
+function ss_node_check_parent_terms(&$node) {
+	// no term, do nothing
 	if (empty($node->taxonomy)) return;
-	
-	$voca_list = array();
 	
 	// foreach taxonomy vacabulary
 	foreach ($node->taxonomy as $vid => $term_ids) {
@@ -33,7 +31,6 @@ function check_insert_term(&$node) {
 		// single, there's no parent
 		if (!$voca -> multiple) continue;
 
-		$list_parent = array(); //save list all term in vocabulary(*)
 		foreach ($term_ids as $term_id) {
 			// get all parent of term
 			$parents = taxonomy_get_parents_all($term_id);
@@ -42,15 +39,9 @@ function check_insert_term(&$node) {
 			foreach ($parents as $parent) {
 				// if exist in list term(*) not add
 				if (!in_array($parent->tid, $list_parent)) {
-					$list_parent[] = $parent->tid;
+					$node->taxonomy[$parent->vid][$parent->tid] = $parent->tid;
 				}
 			}
-		}
-		$voca_list[$vid] = $list_parent;		
-	}
-	// merge two arry, only take items of  $voca_list
-	foreach ($node->taxonomy as $vid => $term_ids){
-		if(!is_array($node->taxonomy[$vid])) continue;
-		$node->taxonomy[$vid] = $voca_list[$vid];
+		}		
 	}
 }
