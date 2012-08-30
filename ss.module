@@ -35,7 +35,7 @@ function check_insert_term(&$node){
 						}
 					}	
 				}
-				$taxonomy_list = array_merge($tam,$list_parent);//add to
+				$taxonomy_list = array_merge($taxonomy_list,$list_parent);//add to
 			}	
 		}	
 	}
