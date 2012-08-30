@@ -1,0 +1,43 @@
+<?php 
+
+/**
+ * Implementation of hook_nodeapi().
+ *
+ * We will implement several node API operations here. This hook allows us to
+ * act on all major node operations, so we can manage our additional data
+ * appropriately.
+ */
+function ss_nodeapi(&$node, $op, $teaser, $page) {
+	switch ($op) {
+		case 'presave':
+			check_insert_term(&$node);
+			break;
+	}
+}
+
+function check_insert_term(&$node){
+	$taxonomy_list = $node->taxonomy;//list temp save all vocabulary and their term
+	
+	//check exist taxonomy term
+	if(isset($node->taxonomy)){
+		//foreach taxonomy vacabulary
+		foreach ($node->taxonomy as $vid => $terms){
+			$voca = taxonomy_vocabulary_load($vid);//load vocabulary
+			$list_parent = array();//save list all term in vocabulary(*)
+			if($voca -> multiple == '1'){//check exist multiple
+				foreach ($terms as $term){//foreach term in vocabulary
+					$parents = taxonomy_get_parents_all($term);// get all parent of term
+					if(!empty($parents)){
+						foreach ($parents as $parent){//foreach all parent if exist in list term(*) not add
+							if(!in_array($parent->tid, $os)){
+								$list_parent[] = $parent->tid;
+							}
+						}
+					}	
+				}
+				$taxonomy_list = array_merge($tam,$list_parent);//add to
+			}	
+		}	
+	}
+	$node->taxonomy = $taxonomy_list;
+}

@@ -1,0 +1,4 @@
+name = SS
+description = add term parent if node term have term parent
+core = 6.x
+package = SSO Project
