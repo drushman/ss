@@ -24,10 +24,7 @@ function check_insert_term(&$node) {
 	// no, do nothing
 	if (empty($node->taxonomy)) return;
 	
-	//dsm($node);
 	$voca_list = array();
-	// list temp save all vocabulary and their term
-	$taxonomy_list = $node->taxonomy;
 	
 	// foreach taxonomy vacabulary
 	foreach ($node->taxonomy as $vid => $term_ids) {
@@ -48,14 +45,12 @@ function check_insert_term(&$node) {
 					$list_parent[] = $parent->tid;
 				}
 			}
-			 
 		}
-		$voca_list[$vid] = $list_parent;
-		
-			
+		$voca_list[$vid] = $list_parent;		
 	}
-	dsm($voca_list);
-	$taxonomy_list = array_merge($taxonomy_list, $voca_list);
-
-	$node->taxonomy = $taxonomy_list;
+	// merge two arry, only take items of  $voca_list
+	foreach ($node->taxonomy as $vid => $term_ids){
+		if(!is_array($node->taxonomy[$vid])) continue;
+		$node->taxonomy[$vid] = $voca_list[$vid];
+	}
 }
