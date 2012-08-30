@@ -15,29 +15,47 @@ function ss_nodeapi(&$node, $op, $teaser, $page) {
 	}
 }
 
-function check_insert_term(&$node){
-	$taxonomy_list = $node->taxonomy;//list temp save all vocabulary and their term
+/**
+ * If node have term when user input. This function will add all term parent to node 
+ * 
+ * 
+ */
+function check_insert_term(&$node) {
+	// no, do nothing
+	if (empty($node->taxonomy)) return;
 	
-	//check exist taxonomy term
-	if(isset($node->taxonomy)){
-		//foreach taxonomy vacabulary
-		foreach ($node->taxonomy as $vid => $terms){
-			$voca = taxonomy_vocabulary_load($vid);//load vocabulary
-			$list_parent = array();//save list all term in vocabulary(*)
-			if($voca -> multiple == '1'){//check exist multiple
-				foreach ($terms as $term){//foreach term in vocabulary
-					$parents = taxonomy_get_parents_all($term);// get all parent of term
-					if(!empty($parents)){
-						foreach ($parents as $parent){//foreach all parent if exist in list term(*) not add
-							if(!in_array($parent->tid, $list_parent)){
-								$list_parent[] = $parent->tid;
-							}
-						}
-					}	
+	//dsm($node);
+	$voca_list = array();
+	// list temp save all vocabulary and their term
+	$taxonomy_list = $node->taxonomy;
+	
+	// foreach taxonomy vacabulary
+	foreach ($node->taxonomy as $vid => $term_ids) {
+		$voca = taxonomy_vocabulary_load($vid); //load vocabulary
+		
+		// single, there's no parent
+		if (!$voca -> multiple) continue;
+
+		$list_parent = array(); //save list all term in vocabulary(*)
+		foreach ($term_ids as $term_id) {
+			// get all parent of term
+			$parents = taxonomy_get_parents_all($term_id);
+			if (empty($parents)) continue;
+
+			foreach ($parents as $parent) {
+				// if exist in list term(*) not add
+				if (!in_array($parent->tid, $list_parent)) {
+					$list_parent[] = $parent->tid;
 				}
-				$taxonomy_list = array_merge($taxonomy_list,$list_parent);//add to
-			}	
-		}	
+			}
+			 
+		}
+		$voca_list[$vid] = $list_parent;
+		
+			
 	}
+	dsm($voca_list);
+	$taxonomy_list = array_merge($taxonomy_list, $voca_list);
+
 	$node->taxonomy = $taxonomy_list;
 }
